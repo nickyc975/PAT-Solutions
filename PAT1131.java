@@ -43,18 +43,18 @@ public class PAT1131 {
 
     private static void buildPath() {
         Set<Integer> stations = map.keySet();
-        Map<Integer, Map<Integer, Pair>> distance = new HashMap<>();
+        Map<Integer, Map<Integer, Distance>> distances = new HashMap<>();
         for (int source : stations) {
-            Map<Integer, Pair> dis = new HashMap<>();
+            Map<Integer, Distance> dis = new HashMap<>();
             for (int target : stations) {
                 if (source == target) {
-                    dis.put(target, new Pair(0, 0.0));
+                    dis.put(target, new Distance(0, 0, 0.0));
                 } else {
-                    dis.put(target, new Pair(0, Double.POSITIVE_INFINITY));
+                    dis.put(target, new Distance(0, 0, Double.POSITIVE_INFINITY));
                 }
                 paths.put(source, new HashMap<>());
             }
-            distance.put(source, dis);
+            distances.put(source, dis);
         }
 
         for (int inter : stations) {
@@ -62,19 +62,25 @@ public class PAT1131 {
                 for (int target : stations) {
                     if (source != inter && target != inter) {
                         if (map.get(source).get(target) != null) {
-                            distance.get(source).get(target)._2 = 1.0;
                             paths.get(source).put(target, source);
-                        } else if (distance.get(source).get(inter)._2 + distance.get(inter).get(target)._2 < distance.get(source).get(target)._2) {
-                            distance.get(source).get(target)._1 = distance.get(source).get(inter)._1 + distance.get(inter).get(target)._1;
-                            distance.get(source).get(target)._2 = distance.get(source).get(inter)._2 + distance.get(inter).get(target)._2;
-                            if (map.get(source).get(inter) != null && map.get(inter).get(target) != null && map.get(source).get(inter) != map.get(inter).get(target)) {
-                                distance.get(source).get(target)._1 = 1;
-                            }
+                            distances.get(source).get(target).distance = 1.0;
+                            distances.get(source).get(target).lastLine = map.get(source).get(target);
+                        } else if (distances.get(source).get(inter).distance + distances.get(inter).get(target).distance < distances.get(source).get(target).distance) {
                             paths.get(source).put(target, inter);
-                        } else if (distance.get(source).get(inter)._2 + distance.get(inter).get(target)._2 == distance.get(source).get(target)._2) {
-                            if (Double.isFinite(distance.get(source).get(target)._2) && distance.get(source).get(inter)._1 + distance.get(inter).get(target)._1 < distance.get(source).get(target)._1) {
-                                distance.get(source).get(target)._1 = distance.get(source).get(inter)._1 + distance.get(inter).get(target)._1;
-                                paths.get(source).put(target, inter);
+                            distances.get(source).get(target).distance = distances.get(source).get(inter).distance + distances.get(inter).get(target).distance;
+                            distances.get(source).get(target).lastLine = distances.get(inter).get(target).lastLine;
+                            distances.get(source).get(target).stopCount = distances.get(source).get(inter).stopCount + distances.get(inter).get(target).stopCount;
+                            if (distances.get(source).get(inter).lastLine != distances.get(inter).get(target).lastLine) {
+                                distances.get(source).get(target).stopCount += 1;
+                            }
+                        } else if (distances.get(source).get(inter).distance + distances.get(inter).get(target).distance == distances.get(source).get(target).distance) {
+                            if (Double.isFinite(distances.get(source).get(target).distance)) {
+                                int isSameLine = distances.get(source).get(inter).lastLine == distances.get(inter).get(target).lastLine ? 0 : 1;
+                                if (distances.get(source).get(inter).stopCount + distances.get(inter).get(target).stopCount + isSameLine < distances.get(source).get(target).stopCount) {
+                                    distances.get(source).get(target).stopCount = distances.get(source).get(inter).stopCount + distances.get(inter).get(target).stopCount + isSameLine;
+                                    distances.get(source).get(target).lastLine = distances.get(inter).get(target).lastLine;
+                                    paths.get(source).put(target, inter);
+                                }
                             }
                         }
                     }
@@ -117,13 +123,20 @@ public class PAT1131 {
     }
 }
 
-class Pair {
-    public int _1;
-    public double _2;
+class Distance {
+    public int lastLine;
+    public int stopCount;
+    public double distance;
 
-    public Pair(int _1, double _2) {
-        this._1 = _1;
-        this._2 = _2;
+    public Distance(int lastLine, int stopCount, double distance) {
+        this.lastLine = lastLine;
+        this.stopCount = stopCount;
+        this.distance = distance;
+    }
+
+    @Override
+    public String toString() {
+        return lastLine + "\t" + stopCount + "\t" + distance;
     }
 }
 
