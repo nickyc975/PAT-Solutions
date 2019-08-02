@@ -36,9 +36,7 @@ public class PAT1003 {
             int sum = 0;
             for (int city : path) {
                 sum += cities[city];
-                // System.out.print(city + " ");
             }
-            // System.out.println();
             maxSum = Math.max(sum, maxSum);
         }
 
@@ -53,11 +51,14 @@ public class PAT1003 {
         Set<Integer>[] paths = (Set<Integer>[]) new Set<?>[cities.length];
 
         for (int i = 0; i < cities.length; i++) {
-            if (i != source) {
-                left.add(i);
+            if (i == source) {
+                distances[i] = 0;
+            } else {
+                distances[i] = Double.POSITIVE_INFINITY;
             }
+
+            left.add(i);
             paths[i] = new HashSet<>();
-            distances[i] = roads[source][i];
         }
 
         int nearestCity;
@@ -77,35 +78,25 @@ public class PAT1003 {
             for (int city : left) {
                 double newDistance = distances[nearestCity] + roads[nearestCity][city];
                 if (newDistance < distances[city]) {
-                    distances[city] = distances[nearestCity] + roads[nearestCity][city];
+                    distances[city] = newDistance;
                     paths[city].clear();
                     paths[city].add(nearestCity);
-                } else if (newDistance == distances[city] && Double.isFinite(distances[city])) {
+                } else if (newDistance == distances[city] && Double.isFinite(newDistance)) {
                     paths[city].add(nearestCity);
                 }
             }
-        } while (!left.isEmpty() && nearestCity != source);
+        } while (!left.isEmpty() && minDistance != Double.POSITIVE_INFINITY);
         
-        List<List<Integer>> result = findPaths(paths, source, target);
-        if (distances[target] == roads[source][target]) {
-            List<Integer> path = new ArrayList<>();
-            path.add(source);
-            path.add(target);
-            result.add(path);
-        }
-        return result;
+        return findPaths(paths, source, target);
     }
 
     private static List<List<Integer>> findPaths(Set<Integer>[] paths, int source, int target) {
         List<List<Integer>> result = new ArrayList<>();
-        if (paths[target] != null && paths[target].isEmpty()) {
-            List<Integer> path = new ArrayList<>();
-            path.add(source);
-            result.add(path);
+        if (source == target) {
+            result.add(new ArrayList<>());
         } else {
-            for (int inter : paths[target]){
-                List<List<Integer>> foundPaths = findPaths(paths, source, inter);
-                result.addAll(foundPaths);
+            for (int inter : paths[target]) {
+                result.addAll(findPaths(paths, source, inter));
             }
         }
 
