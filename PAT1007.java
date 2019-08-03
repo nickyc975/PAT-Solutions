@@ -3,54 +3,45 @@ import java.util.Scanner;
 public class PAT1007 {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        Interval[] numbers = new Interval[scanner.nextInt()];
-        for (int i = 0; i < numbers.length; i++) {
+        
+        int length = scanner.nextInt();
+        int left = 0, right = 0, sum = -1;
+        int temp_left = 0, temp_sum = temp_left;
+        int first = 0, last = 0;
+
+        boolean updateLeft = true;
+        for (int i = 0; i < length; i++) {
             int value = scanner.nextInt();
-            numbers[i] = new Interval(value, value, value);
-        }
-
-        int valueNum = 0;
-        for (int i = 0; i < numbers.length; ) {
-            int j = i + 1;
-            if (numbers[i].sum >= 0) {
-                while (j < numbers.length && numbers[j].sum >= 0) {
-                    numbers[i].sum += numbers[j].sum;
-                    numbers[i].right = numbers[j].right;
-                    j++;
-                }
-            } else {
-                while (j < numbers.length && numbers[j].sum < 0) {
-                    numbers[i].sum += numbers[j].sum;
-                    numbers[i].right = numbers[j].right;
-                    j++;
-                }
+            if (i == 0) {
+                first = value;
             }
-            numbers[valueNum] = numbers[i];
-            valueNum++;
-            i = j;
+            
+            if (i == length - 1) {
+                last = value;
+            }
+
+            if (updateLeft) {
+                temp_left = value;
+                updateLeft = false;
+            }
+
+            temp_sum += value;
+            if (temp_sum > sum) {
+                sum = temp_sum;
+                right = value;
+                left = temp_left;
+            } else if (temp_sum <= 0) {
+                temp_sum = 0;
+                updateLeft = true;
+            }
         }
 
-        for (int i = 0; i < valueNum; i++) {
-            System.out.println(numbers[i]);
+        if (sum < 0) {
+            System.out.print(0 + " " + first + " " + last);
+        } else {
+            System.out.print(sum + " " + left + " " + right);
         }
 
         scanner.close();
-    }
-
-    private static class Interval {
-        public int sum;
-        public int left;
-        public int right;
-
-        private Interval(int sum, int left, int right) {
-            this.sum = sum;
-            this.left = left;
-            this.right = right;
-        }
-
-        @Override
-        public String toString() {
-            return sum + " " + left + " " + right;
-        }
     }
 }
