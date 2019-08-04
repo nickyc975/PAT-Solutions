@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 
-using namespace std;
-
 int main()
 {
     char unlocked[16], locked[16];
@@ -12,8 +10,9 @@ int main()
     int in_time, in_hour, in_minute, in_second;
     int out_time, out_hour, out_minute, out_second;
 
+    int i;
     scanf("%d\n", &num);
-    for (int i = 0; i < num; i++)
+    for (i = 0; i < num; i++)
     {
         scanf("%s %d:%d:%d %d:%d:%d", id, &in_hour, &in_minute, &in_second, &out_hour, &out_minute, &out_second);
         
