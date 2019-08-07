@@ -47,11 +47,11 @@ int main()
 {
     course_t course;
     student_t *student;
-    int i, id, stu_num, query_num;
+    int id, stu_num, query_num;
     int C_score, M_score, E_score, A_score;
     scanf("%d %d", &stu_num, &query_num);
 
-    for (i = 0; i < stu_num; i++)
+    for (int i = 0; i < stu_num; i++)
     {
         scanf("%d %d %d %d", &id, &C_score, &M_score, &E_score);
         put_student(new_student(id));
@@ -68,7 +68,7 @@ int main()
     cal_ranks(M_ranks, M, MAX_SCORE);
     cal_ranks(E_ranks, E, MAX_SCORE);
 
-    for (i = 0; i < query_num; i++)
+    for (int i = 0; i < query_num; i++)
     {
         scanf("%d", &id);
         student = get_student(id);
@@ -76,11 +76,11 @@ int main()
         if (student != NULL)
         {
             course = A;
-            for (i = A; i <= E; i++)
+            for (int j = A; j <= E; j++)
             {
-                if (student->rank[i] < student->rank[course])
+                if (student->rank[j] < student->rank[course])
                 {
-                    course = (course_t)i;
+                    course = (course_t)j;
                 }
             }
 
@@ -118,8 +118,8 @@ void cal_ranks(rank_t *ranks[], course_t course, int max_score)
 {
     rank_t *rank;
     student_t *student;
-    int i, count = 1, same_score;
-    for (i = max_score; i > 0; i--)
+    int count = 1, same_score;
+    for (int i = max_score; i > 0; i--)
     {
         same_score = 0;
         rank = ranks[i - 1];
@@ -166,10 +166,10 @@ student_t *get_student(int id)
 /*
 5 6
 310101 98 85 88
-310102 98 95 88
-310103 82 87 90
-310104 90 90 90
-310105 85 80 89
+310102 70 95 88
+310103 82 87 94
+310104 91 91 91
+310105 85 90 90
 310101
 310102
 310103
