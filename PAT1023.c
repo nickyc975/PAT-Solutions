@@ -3,39 +3,63 @@
 
 int main()
 {
-    unsigned long long temp, value;
-    int value_d[10] = {0}, doubled_d[10] = {0};
-    scanf("%llu", &value);
+    char value[25], doubled[25];
+    int i, val_d_num = 0, dbld_d_num = 0;
+    char value_d[10] = {0}, doubled_d[10] = {0};
 
-    if (value == 0)
+    char ch = getchar();
+    while (ch >= '0' && ch <= '9')
     {
-        printf("Yes\n%llu", value);
-        return 0;
+        value[val_d_num] = ch - '0';
+        ch = getchar();
+        val_d_num++;
     }
 
-    temp = value;
-    while (temp > 0)
+    for (i = val_d_num - 1, ch = 0; i >= 0; i--)
     {
-        value_d[temp % 10]++;
-        temp /= 10;
+        ch += value[i] * 2;
+        doubled[dbld_d_num] = ch % 10;
+        dbld_d_num++;
+        ch /= 10;
     }
 
-    temp = value * 2;
-    while (temp > 0)
+    if (ch > 0)
     {
-        doubled_d[temp % 10]++;
-        temp /= 10;
+        doubled[dbld_d_num] = ch % 10;
+        dbld_d_num++;
     }
-    
-    for (int i = 0; i < 10; i++)
+
+    if (dbld_d_num != val_d_num)
     {
-        if (value_d[i] != doubled_d[i])
+        printf("No\n");
+    }
+    else
+    {
+        for (i = 0; i < val_d_num; i++)
         {
-            printf("No\n%llu", value * 2);
-            return 0;
+            value_d[value[i]]++;
+            doubled_d[doubled[i]]++;
+        }
+        
+        for (i = 0; i < 10; i++)
+        {
+            if (value_d[i] != doubled_d[i])
+            {
+                printf("No\n");
+                break;
+            }
+        }
+
+        if (i >= 10)
+        {
+            printf("Yes\n");
         }
     }
 
-    printf("Yes\n%llu", value * 2);
+    while (dbld_d_num > 0)
+    {
+        printf("%d", doubled[dbld_d_num - 1]);
+        dbld_d_num--;
+    }
     return 0;
 }
