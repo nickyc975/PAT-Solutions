@@ -1,149 +1,85 @@
+#include <cstdio>
 #include <iostream>
 #include <unordered_map>
+#include <vector>
 
 using namespace std;
 
-class Node
+int in_u_idx, in_v_idx;
+vector<int> preorder, inorder;
+unordered_map<int, int> inorder_idx;
+
+void LCA(int in_left, int in_right, int pre_root_idx)
 {
-public:
-    int level;
-    const int value;
-    Node *parent, *lchild, *rchild;
-
-    Node(int value): 
-        value(value),
-        parent(NULL), 
-        lchild(NULL), 
-        rchild(NULL)
+    if (in_left > in_right)
     {
-
-    }
-};
-
-unordered_map<int, Node *> nodes;
-
-int LCA(Node *root, int u, int v)
-{
-    unordered_map<int, Node *>::iterator it;
-    Node *node_u = NULL, *node_v = NULL;
-
-    it = nodes.find(u);
-    if (it != nodes.end())
-    {
-        node_u = it->second;
+        return;
     }
 
-    it = nodes.find(v);
-    if (it != nodes.end())
+    int in_root_idx = inorder_idx[preorder[pre_root_idx]];
+    if (in_u_idx < in_root_idx && in_v_idx < in_root_idx)
     {
-        node_v = it->second;
+        LCA(in_left, in_root_idx - 1, pre_root_idx + 1);
     }
-
-    if (node_u == NULL && node_v == NULL)
+    else if (in_u_idx > in_root_idx && in_v_idx > in_root_idx)
     {
-        printf("ERROR: %d and %d are not found.\n", u, v);
+        LCA(in_root_idx + 1, in_right, pre_root_idx + in_root_idx - in_left + 1);
     }
-    else if (node_u == NULL)
+    else if ((in_u_idx < in_root_idx && in_v_idx > in_root_idx) 
+        || (in_u_idx > in_root_idx && in_v_idx < in_root_idx))
     {
-        printf("ERROR: %d is not found.\n", u);
+        printf("LCA of %d and %d is %d.\n", inorder[in_u_idx], inorder[in_v_idx], inorder[in_root_idx]);
     }
-    else if (node_v == NULL)
+    else if (in_u_idx == in_root_idx)
     {
-        printf("ERROR: %d is not found.\n", v);
+        printf("%d is an ancestor of %d.\n", inorder[in_u_idx], inorder[in_v_idx]);
     }
     else
     {
-        while (node_u->value != node_v->value)
-        {
-            if (node_u->level > node_v->level)
-            {
-                node_u = node_u->parent;
-            }
-            else if (node_u->level < node_v->level)
-            {
-                node_v = node_v->parent;
-            }
-            else
-            {
-                node_u = node_u->parent;
-                node_v = node_v->parent;
-            }
-        }
-
-        if (node_u->value == u)
-        {
-            printf("%d is an ancestor of %d.\n", u, v);
-        }
-        else if (node_u->value == v)
-        {
-            printf("%d is an ancestor of %d.\n", v, u);
-        }
-        else
-        {
-            printf("LCA of %d and %d is %d.\n", u, v, node_u->value);
-        }
+        printf("%d is an ancestor of %d.\n", inorder[in_v_idx], inorder[in_u_idx]);
     }
 }
 
 int main()
 {
-    int query_num, node_num;
-    unordered_map<int, int> in_order;
-    int value, pre_value, index, pre_index;
-    Node *root = NULL, *node = NULL, *pre_node = NULL;
-
+    int value, node_num, query_num;
     cin >> query_num >> node_num;
     for (int i = 0; i < node_num; i++)
     {
         cin >> value;
-        in_order[value] = i;
+        inorder_idx[value] = i;
+        inorder.push_back(value);
     }
-
-    cin >> pre_value;
-    root = new Node(pre_value);
-    root->level = 1;
-    nodes[pre_value] = root;
-
-    pre_node = root;
-    pre_index = in_order[pre_value];
-    for (int i = 1; i < node_num; i++)
+    for (int i = 0; i < node_num; i++)
     {
         cin >> value;
-        node = new Node(value);
-        nodes[value] = node;
-
-        index = in_order[value];
-        if (index < pre_index)
-        {
-            pre_node->lchild = node;
-        }
-        else
-        {
-            while (pre_node->parent != NULL && in_order[pre_node->parent->value] < index)
-            {
-                pre_node = pre_node->parent;
-            }
-            
-            while (pre_node->rchild != NULL)
-            {
-                pre_node = pre_node->rchild;
-            }
-            
-            pre_node->rchild = node;
-        }
-
-        node->parent = pre_node;
-        node->level = pre_node->level + 1;
-        pre_index = index;
-        pre_node = node;
+        preorder.push_back(value);
     }
-
     int u, v;
+    unordered_map<int, int>::iterator u_it, v_it;
     for (int i = 0; i < query_num; i++)
     {
         cin >> u >> v;
-        LCA(root, u, v);
+        u_it = inorder_idx.find(u);
+        v_it = inorder_idx.find(v);
+        if (u_it == inorder_idx.end() && v_it == inorder_idx.end())
+        {
+            printf("ERROR: %d and %d are not found.\n", u, v);
+        }
+        else if (u_it == inorder_idx.end())
+        {
+            printf("ERROR: %d is not found.\n", u);
+        }
+        else if (v_it == inorder_idx.end())
+        {
+            printf("ERROR: %d is not found.\n", v);
+        }
+        else
+        {
+            in_u_idx = u_it->second;
+            in_v_idx = v_it->second;
+            LCA(0, node_num - 1, 0);
+        }
     }
-
     return 0;
 }
