@@ -1,3 +1,7 @@
+/**
+ * Id maybe 0000.
+ */
+
 #include <algorithm>
 #include <cstdio>
 #include <iostream>
@@ -7,11 +11,12 @@
 
 using namespace std;
 
+unordered_map<int, int> gender;
 unordered_map<int, unordered_set<int> *> relations;
 
 size_t my_hash(pair<int, int> *a)
 {
-    return abs(a->first) + abs(a->second);
+    return a->first + a->second;
 }
 
 bool my_equal(pair<int, int> *a, pair<int, int> *b)
@@ -21,11 +26,11 @@ bool my_equal(pair<int, int> *a, pair<int, int> *b)
 
 bool my_cmp(pair<int, int> *a, pair<int, int> *b)
 {
-    if (abs(a->first) == abs(b->first))
+    if (a->first == b->first)
     {
-        return abs(a->second) < abs(b->second);
+        return a->second < b->second;
     }
-    return abs(a->first) < abs(b->first);
+    return a->first < b->first;
 }
 
 void contact(int a, int b)
@@ -39,14 +44,14 @@ void contact(int a, int b)
     {
         for (int c : *(a_friends->second))
         {
-            if (c * a > 0 && c != b)
+            if (gender[c] == gender[a] && c != b)
             {
                 c_friends = relations.find(c);
                 if (c_friends !=  relations.end())
                 {
                     for (int d : *(c_friends->second))
                     {
-                        if (d * b > 0 && d != a)
+                        if (gender[d] == gender[b] && d != a)
                         {
                             d_friends = relations.find(d);
                             if (d_friends != relations.end() && d_friends->second->find(b) != d_friends->second->end())
@@ -70,7 +75,7 @@ void contact(int a, int b)
     printf("%d\n", ordered_friends.size());
     for (pair<int, int> *f : ordered_friends)
     {
-        printf("%04d %04d\n", abs(f->first), abs(f->second));
+        printf("%04d %04d\n", f->first, f->second);
     }
 }
 
@@ -80,10 +85,32 @@ int main()
     cin >> p_num >> r_num;
 
     int source, target;
+    string source_str, target_str;
     unordered_map<int, unordered_set<int> *>::iterator iter;
     for (int i = 0; i < r_num; i++)
     {
-        cin >> source >> target;
+        cin >> source_str >> target_str;
+        source = abs(atoi(source_str.c_str()));
+        target = abs(atoi(target_str.c_str()));
+
+        if (source_str[0] == '-')
+        {
+            gender[source] = -1;
+        }
+        else
+        {
+            gender[source] = 1;
+        }
+
+        if (target_str[0] == '-')
+        {
+            gender[target] = -1;
+        }
+        else
+        {
+            gender[target] = 1;
+        }
+
         iter = relations.find(source);
         if (iter == relations.end())
         {
@@ -106,7 +133,7 @@ int main()
     for (int i = 0; i < query_num; i++)
     {
         cin >> source >> target;
-        contact(source, target);
+        contact(abs(source), abs(target));
     }
     return 0;
 }
